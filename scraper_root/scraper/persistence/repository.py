@@ -16,7 +16,9 @@ from scraper_root.scraper.persistence.orm_classes import _DECL_BASE, CurrentPric
 
 logger = logging.getLogger(__name__)
 
-
+ssl_args = {
+    'ssl_ca': '/scraper/trading-data-ca-certificate.crt'
+}
 class Repository:
     def __init__(self, accounts: List[str]):
 
@@ -26,7 +28,7 @@ class Repository:
         #     'DATABASE_PATH', 'sqlite:///data/exchanges_db.sqlite'), echo=False)
         # _DECL_BASE.metadata.create_all(self.engine)
 
-        self.engine = create_engine(database_url, echo=False)
+        self.engine = create_engine(database_url, echo=False, connect_args=ssl_args)
         _DECL_BASE.metadata.create_all(self.engine)
 
         self.lockable_session = LockableSession(self.engine)
