@@ -5,6 +5,7 @@ RUN apk add --no-cache gcc musl-dev linux-headers libffi-dev g++
 # Agrega el repositorio edge y actualiza
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
     echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
+    apk update --allow-untrusted \
     apk update
 
 # Instala paquetes necesarios
