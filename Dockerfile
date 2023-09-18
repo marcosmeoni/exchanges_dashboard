@@ -5,7 +5,7 @@ RUN apt-get update && \
     apt-get install -y default-libmysqlclient-dev gcc pkg-config libssl-dev && \
     pip install mysqlclient
 RUN apt-get update && \
-     apt-get install -y gcc libc6-dev linux-headers-$(uname -r) libffi-dev g++
+     apt-get install -y gcc libc6-dev libffi-dev g++
 RUN pip install --upgrade\
 # Instala mysqlclient
 COPY scraper_root /scraper/scraper_root
