@@ -24,9 +24,9 @@ class Repository:
             'ssl': {
                 'cert': '/scraper/scraper_root/trading-data-ca-certificate.crt'
             }
-}
-
-        database_url = os.getenv('DATABASE_URL', 'mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@172.104.42.241/exchanges_db')
+        }
+        print(ssl_args)
+        database_url = os.getenv('DATABASE_URL', 'mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net/exchanges_db')
 
         # self.engine = create_engine(url=os.getenv(
         #     'DATABASE_PATH', 'sqlite:///data/exchanges_db.sqlite'), echo=False)
