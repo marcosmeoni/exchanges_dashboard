@@ -20,13 +20,13 @@ logger = logging.getLogger(__name__)
 class Repository:
     def __init__(self, accounts: List[str]):
 
-        database_url = os.getenv('DATABASE_URL', 'mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@172.104.42.241/exchanges_db?ssl_ca=/scraper/trading-data-ca-certificate.crt')
+        database_url = os.getenv('DATABASE_URL', 'mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@172.104.42.241/exchanges_db?ssl=true')
 
         # self.engine = create_engine(url=os.getenv(
         #     'DATABASE_PATH', 'sqlite:///data/exchanges_db.sqlite'), echo=False)
         # _DECL_BASE.metadata.create_all(self.engine)
 
-        self.engine = create_engine(database_url, echo=False)
+        self.engine = create_engine(database_url, echo=True)
         _DECL_BASE.metadata.create_all(self.engine)
 
         self.lockable_session = LockableSession(self.engine)
