@@ -19,8 +19,14 @@ logger = logging.getLogger(__name__)
 
 class Repository:
     def __init__(self, accounts: List[str]):
-        self.engine = create_engine(url=os.getenv(
-            'DATABASE_PATH', 'sqlite:///data/exchanges_db.sqlite'), echo=False)
+
+        database_url = os.getenv('DATABASE_URL', 'mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@<lin-28781-15425-mysql-primary.servers.linodedb.net')
+
+        # self.engine = create_engine(url=os.getenv(
+        #     'DATABASE_PATH', 'sqlite:///data/exchanges_db.sqlite'), echo=False)
+        # _DECL_BASE.metadata.create_all(self.engine)
+
+        self.engine = create_engine(database_url, echo=False)
         _DECL_BASE.metadata.create_all(self.engine)
 
         self.lockable_session = LockableSession(self.engine)
