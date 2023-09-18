@@ -5,7 +5,7 @@ services:
     container_name: scraper-marcos
     environment:
       - CONFIG_FILE=/scraper/config.json
-      - DATABASE_URL=mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net/exchanges_db
+      - DATABASE_URL=mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net/exchanges_db?ssl_mode=DISABLE
     volumes:
       - $PWD/data:/data
       - /etc/timezone:/etc/timezone:ro
