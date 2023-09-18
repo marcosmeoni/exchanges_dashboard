@@ -19,10 +19,10 @@ logger = logging.getLogger(__name__)
 
 class Repository:
     def __init__(self, accounts: List[str]):
-        ssl_args = {'ssl_cert': '/scraper/trading-data-ca-certificate.crt'}
+        
         ssl_args = {
             'ssl': {
-                'cert': '/scraper/trading-data-ca-certificate.crt'
+                'cert': '/scraper/scraper_root/trading-data-ca-certificate.crt'
             }
 }
 
