@@ -2,10 +2,12 @@
 FROM python:3.8.7-alpine
 RUN apk add --no-cache gcc musl-dev linux-headers libffi-dev g++
 # Instala paquetes necesarios
-RUN apk add --no-cache mariadb-connector-c-dev build-base
+RUN apk add --no-cache mariadb-connector-c-dev mariadb-dev build-base pkg-config && \
+    export MYSQLCLIENT_CFLAGS="-I/usr/include/mysql" && \
+    export MYSQLCLIENT_LDFLAGS="-L/usr/lib/mysql -lmariadb" && \
+    pip install mysqlclient
 RUN pip install --upgrade pip
 # Instala mysqlclient
-RUN pip install mysqlclient
 COPY scraper_root /scraper/scraper_root
 RUN pip install -r /scraper/scraper_root/requirements.txt
 COPY config*.json /scraper/
