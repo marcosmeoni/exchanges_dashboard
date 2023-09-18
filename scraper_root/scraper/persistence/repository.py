@@ -20,6 +20,11 @@ logger = logging.getLogger(__name__)
 class Repository:
     def __init__(self, accounts: List[str]):
         ssl_args = {'ssl_cert': '/scraper/trading-data-ca-certificate.crt'}
+        ssl_args = {
+            'ssl': {
+                'cert': '/scraper/trading-data-ca-certificate.crt'
+            }
+}
 
         database_url = os.getenv('DATABASE_URL', 'mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@172.104.42.241/exchanges_db')
 
