@@ -2,6 +2,7 @@ version: '3.5'
 services:
   scraper:
     build: .
+    container_name: scraper-marcos
     environment:
       - CONFIG_FILE=/scraper/config.json
       - DATABASE_URL=mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@<lin-28781-15425-mysql-primary.servers.linodedb.net
@@ -12,7 +13,7 @@ services:
   metabase-app:
     image: metabase/metabase:latest
 #    image: metabase/metabase:v0.43.1
-    container_name: metabase
+    container_name: metabase-marcos
     hostname: metabase
     volumes:
       - /dev/urandom:/dev/random:ro
