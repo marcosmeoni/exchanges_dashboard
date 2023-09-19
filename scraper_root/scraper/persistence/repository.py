@@ -50,7 +50,10 @@ cert_file.close()
 class Repository:
     def __init__(self, accounts: List[str]):
         # Paso 1: Conexión al servidor sin especificar una base de datos
-        connection_url = default_url
+        connection_url = (
+                f"mysql+pymysql://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net:3306"
+                f"?ssl_ca={cert_file.name}"
+                )
         engine = create_engine(connection_url, echo=False)
         connection = engine.connect()
 
