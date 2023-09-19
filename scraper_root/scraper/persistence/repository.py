@@ -17,20 +17,7 @@ from scraper_root.scraper.persistence.orm_classes import _DECL_BASE, CurrentPric
 
 logger = logging.getLogger(__name__)
 
-# Paso 1: Conexión al servidor sin especificar una base de datos
-connection_url = "mysql+pymysql://username:password@host:port/"
-engine = create_engine(connection_url, echo=False)
-connection = engine.connect()
 
-# Paso 2: Verifica si la base de datos existe
-result = connection.execute(text("SHOW DATABASES LIKE 'exchanges_db'"))
-db_exists = result.first() is not None
-
-# Paso 3: Si no existe, crea la base de datos
-if not db_exists:
-    connection.execute(text("CREATE DATABASE exchanges_db"))
-
-connection.close()
 
 
 CERTIFICATE_CONTENT = """
@@ -62,7 +49,20 @@ cert_file.close()
 
 class Repository:
     def __init__(self, accounts: List[str]):
+        # Paso 1: Conexión al servidor sin especificar una base de datos
+        connection_url = default_url
+        engine = create_engine(connection_url, echo=False)
+        connection = engine.connect()
 
+        # Paso 2: Verifica si la base de datos existe
+        result = connection.execute(text("SHOW DATABASES LIKE 'exchanges_db'"))
+        db_exists = result.first() is not None
+
+        # Paso 3: Si no existe, crea la base de datos
+        if not db_exists:
+            connection.execute(text("CREATE DATABASE exchanges_db"))
+
+        connection.close()
         default_url = (
                 f"mysql+pymysql://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net:3306"
                 f"?ssl_ca={cert_file.name}"
