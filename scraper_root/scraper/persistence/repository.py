@@ -26,7 +26,11 @@ class Repository:
             }
         }
         print(ssl_args)
-        database_url = os.getenv('DATABASE_URL', 'mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net:3306/exchanges_db')
+        default_url = (
+                "mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net:3306/exchanges_db"
+                "?ssl_cert=/scraper/scraper_root/trading-data-ca-certificate.crt"
+                )
+        database_url = os.getenv('DATABASE_URL', default_url)
 
         # self.engine = create_engine(url=os.getenv(
         #     'DATABASE_PATH', 'sqlite:///data/exchanges_db.sqlite'), echo=False)
