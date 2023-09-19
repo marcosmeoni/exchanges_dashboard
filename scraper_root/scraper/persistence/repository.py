@@ -243,25 +243,27 @@ class Repository:
             return
         with self.lockable_session as session:
             logger.warning(f'{account}: Processing incomes')
-
-            # Usando time para obtener la fecha y hora actual en UTC
-            current_timestamp = time.gmtime()
-            current_datetime = datetime(*current_timestamp[:6])  # Convertir a datetime
-
-            session.execute(
-                IncomeEntity.__table__.insert(),
-                params=[{
-                    "transaction_id": income.transaction_id,
-                    "symbol": income.symbol,
-                    "incomeType": income.type,
-                    "income": income.income,
-                    "asset": income.asset,
-                    "time": datetime.utcfromtimestamp(income.timestamp / 1000),
-                    "timestamp": income.timestamp,
-                    "account": account,
-                    "registration_datetime": current_datetime}  # Agregar la columna y su valor
-                    for income in incomes],
-            )
+            
+            # Construir la consulta con INSERT IGNORE
+            query = f"""
+            INSERT IGNORE INTO {IncomeEntity.__tablename__} 
+            (transaction_id, symbol, incomeType, income, asset, time, timestamp, account)
+            VALUES :values
+            """
+            
+            # Crear los valores para la inserción masiva
+            values = [{
+                "transaction_id": income.transaction_id,
+                "symbol": income.symbol,
+                "incomeType": income.type,
+                "income": income.income,
+                "asset": income.asset,
+                "time": datetime.utcfromtimestamp(income.timestamp / 1000),
+                "timestamp": income.timestamp,
+                "account": account
+            } for income in incomes]
+            
+            session.execute(query, {"values": values})
             session.commit()
 
     # def process_incomes(self, incomes: List[Income], account: str):
