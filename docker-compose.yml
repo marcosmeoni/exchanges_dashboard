@@ -9,21 +9,6 @@ services:
       - $PWD/data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-  metabase-app:
-    image: metabase/metabase:latest
-#    image: metabase/metabase:v0.43.1
-    container_name: metabase-marcos
-    hostname: metabase
-    volumes:
-      - /dev/urandom:/dev/random:ro
-      - $PWD:/metabase-data
-      - $PWD/data:/data
-    ports:
-      - 3001:3000
-    networks:
-      - metanet1
-    depends_on:
-      - scraper
 networks:
   metanet1:
     driver: bridge

@@ -237,12 +237,16 @@ class Repository:
             result = session.query(IncomeEntity).filter(IncomeEntity.account == account).order_by(
                 IncomeEntity.time.desc()).first()
             return result
-
+      
     def process_incomes(self, incomes: List[Income], account: str):
         if len(incomes) == 0:
             return
         with self.lockable_session as session:
             logger.warning(f'{account}: Processing incomes')
+
+            # Usando time para obtener la fecha y hora actual en UTC
+            current_timestamp = time.gmtime()
+            current_datetime = datetime(*current_timestamp[:6])  # Convertir a datetime
 
             session.execute(
                 IncomeEntity.__table__.insert(),
@@ -254,10 +258,32 @@ class Repository:
                     "asset": income.asset,
                     "time": datetime.utcfromtimestamp(income.timestamp / 1000),
                     "timestamp": income.timestamp,
-                    "account": account}
+                    "account": account,
+                    "registration_datetime": current_datetime}  # Agregar la columna y su valor
                     for income in incomes],
             )
             session.commit()
+
+    # def process_incomes(self, incomes: List[Income], account: str):
+    #     if len(incomes) == 0:
+    #         return
+    #     with self.lockable_session as session:
+    #         logger.warning(f'{account}: Processing incomes')
+
+    #         session.execute(
+    #             IncomeEntity.__table__.insert(),
+    #             params=[{
+    #                 "transaction_id": income.transaction_id,
+    #                 "symbol": income.symbol,
+    #                 "incomeType": income.type,
+    #                 "income": income.income,
+    #                 "asset": income.asset,
+    #                 "time": datetime.utcfromtimestamp(income.timestamp / 1000),
+    #                 "timestamp": income.timestamp,
+    #                 "account": account}
+    #                 for income in incomes],
+    #         )
+    #         session.commit()
 
     def process_trades(self, trades: List[Trade], account: str):
         if len(trades) == 0:
