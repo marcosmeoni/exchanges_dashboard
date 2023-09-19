@@ -238,6 +238,8 @@ class Repository:
                 IncomeEntity.time.desc()).first()
             return result
       
+    
+
     def process_incomes(self, incomes: List[Income], account: str):
         if len(incomes) == 0:
             return
@@ -245,11 +247,11 @@ class Repository:
             logger.warning(f'{account}: Processing incomes')
             
             # Construir la consulta con INSERT IGNORE
-            query = f"""
+            query = text(f"""
             INSERT IGNORE INTO {IncomeEntity.__tablename__} 
             (transaction_id, symbol, incomeType, income, asset, time, timestamp, account)
             VALUES :values
-            """
+            """)
             
             # Crear los valores para la inserción masiva
             values = [{
@@ -265,6 +267,7 @@ class Repository:
             
             session.execute(query, {"values": values})
             session.commit()
+
 
     # def process_incomes(self, incomes: List[Income], account: str):
     #     if len(incomes) == 0:
