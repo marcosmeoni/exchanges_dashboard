@@ -240,39 +240,36 @@ class Repository:
       
     
 
+    
+
     def process_incomes(self, incomes: List[Income], account: str):
         if len(incomes) == 0:
             return
         with self.lockable_session as session:
             logger.warning(f'{account}: Processing incomes')
             
-            for income in incomes:
-                session.execute(
-                    f"""
-                    INSERT INTO {IncomeEntity.__tablename__} 
-                    (transaction_id, symbol, incomeType, income, asset, time, timestamp, account)
-                    VALUES (:transaction_id, :symbol, :incomeType, :income, :asset, :time, :timestamp, :account)
-                    ON DUPLICATE KEY UPDATE
-                    symbol = VALUES(symbol),
-                    incomeType = VALUES(incomeType),
-                    income = VALUES(income),
-                    asset = VALUES(asset),
-                    time = VALUES(time),
-                    timestamp = VALUES(timestamp),
-                    account = VALUES(account)
-                    """,
-                    {
-                        "transaction_id": income.transaction_id,
-                        "symbol": income.symbol,
-                        "incomeType": income.type,
-                        "income": income.income,
-                        "asset": income.asset,
-                        "time": datetime.utcfromtimestamp(income.timestamp / 1000),
-                        "timestamp": income.timestamp,
-                        "account": account
-                    }
-                )
+            # Construir la consulta con INSERT IGNORE
+            query = text(f"""
+            INSERT IGNORE INTO {IncomeEntity.__tablename__} 
+            (transaction_id, symbol, incomeType, income, asset, time, timestamp, account)
+            VALUES :values
+            """)
+            
+            # Crear los valores para la inserción masiva
+            values = [{
+                "transaction_id": income.transaction_id,
+                "symbol": income.symbol,
+                "incomeType": income.type,
+                "income": income.income,
+                "asset": income.asset,
+                "time": datetime.utcfromtimestamp(income.timestamp / 1000),
+                "timestamp": income.timestamp,
+                "account": account
+            } for income in incomes]
+            
+            session.execute(query, {"values": values})
             session.commit()
+
 
 
 
