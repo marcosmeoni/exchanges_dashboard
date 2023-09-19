@@ -64,7 +64,7 @@ class Repository:
 
         connection.close()
         default_url = (
-                f"mysql+pymysql://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net:3306"
+                f"mysql+pymysql://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net:3306/exchanges_db"
                 f"?ssl_ca={cert_file.name}"
                 )
         database_url = os.getenv('DATABASE_URL', default_url)
