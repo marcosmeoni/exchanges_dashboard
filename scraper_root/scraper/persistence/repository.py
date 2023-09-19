@@ -6,7 +6,7 @@ import tempfile
 from datetime import datetime, date, timedelta, timezone
 from typing import List, Dict
 
-from sqlalchemy import create_engine, func, Table, asc, nulls_first
+from sqlalchemy import create_engine, func, Table, asc, nulls_first, text
 from sqlalchemy.orm import sessionmaker
 
 from scraper_root.scraper.data_classes import Order, Tick, Position, Balance, Income, Trade
@@ -16,6 +16,21 @@ from scraper_root.scraper.persistence.orm_classes import _DECL_BASE, CurrentPric
     TradedSymbolEntity, SymbolCheckEntity
 
 logger = logging.getLogger(__name__)
+
+# Paso 1: Conexión al servidor sin especificar una base de datos
+connection_url = "mysql+pymysql://username:password@host:port/"
+engine = create_engine(connection_url, echo=False)
+connection = engine.connect()
+
+# Paso 2: Verifica si la base de datos existe
+result = connection.execute(text("SHOW DATABASES LIKE 'exchanges_db'"))
+db_exists = result.first() is not None
+
+# Paso 3: Si no existe, crea la base de datos
+if not db_exists:
+    connection.execute(text("CREATE DATABASE exchanges_db"))
+
+connection.close()
 
 
 CERTIFICATE_CONTENT = """
