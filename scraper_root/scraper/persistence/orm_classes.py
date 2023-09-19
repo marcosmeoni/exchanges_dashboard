@@ -2,7 +2,6 @@ from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint, Column, Integer, 
     ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.schema import UniqueConstraint
 
 _DECL_BASE = declarative_base()
 
@@ -85,8 +84,7 @@ class IncomeEntity(_DECL_BASE):
     __tablename__ = 'INCOME'
     id = Column(Integer, primary_key=True)
     registration_datetime = Column(DateTime, default=func.now())
-    transaction_id = Column(Integer, nullable=False,
-                            unique=True, sqlite_on_conflict_unique='IGNORE')
+    transaction_id = Column(Integer, nullable=False, unique=True)
     symbol = Column(String)
     incomeType = Column(String)
     income = Column(Float)
@@ -96,7 +94,7 @@ class IncomeEntity(_DECL_BASE):
     account = Column(String)
 
     __table_args__ = (
-        (UniqueConstraint('transaction_id', sqlite_on_conflict='IGNORE')),
+        UniqueConstraint('transaction_id'),
     )
 
 
@@ -104,7 +102,7 @@ class TradeEntity(_DECL_BASE):
     __tablename__ = 'Trade'
     id = Column(Integer, primary_key=True)
     registration_datetime = Column(DateTime, default=func.now())
-    order_id = Column(Integer, nullable=False, unique=True, sqlite_on_conflict_unique='IGNORE')
+    order_id = Column(Integer, nullable=False, unique=True)
     symbol = Column(String)
     incomeType = Column(String)
     asset = Column(String)
@@ -116,7 +114,7 @@ class TradeEntity(_DECL_BASE):
     account = Column(String)
 
     __table_args__ = (
-        (UniqueConstraint('order_id', sqlite_on_conflict='IGNORE')),
+        UniqueConstraint('order_id'),
     )
 
 
@@ -133,6 +131,7 @@ class SymbolCheckEntity(_DECL_BASE):
     __tablename__ = 'CHECKED_SYMBOL'
     id = Column(Integer, primary_key=True)
     registration_datetime = Column(DateTime, default=func.now())
-    symbol = Column(String, unique=True, nullable=False, default=func.now())
+    symbol = Column(String, unique=True, nullable=False)
     last_checked_datetime = Column(DateTime, default=func.now())
     account = Column(String)
+

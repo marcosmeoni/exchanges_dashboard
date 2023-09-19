@@ -19,24 +19,14 @@ logger = logging.getLogger(__name__)
 
 class Repository:
     def __init__(self, accounts: List[str]):
-        
-        ssl_args = {
-            'ssl': {
-                'cert': '/scraper/scraper_root/trading-data-ca-certificate.crt'
-            }
-        }
-        print(ssl_args)
+
         default_url = (
-                "mysql+mysqldb://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net:3306/exchanges_db"
+                "mysql+pymysql://linroot:uKQORbgnUy7-EYrY@lin-28781-15425-mysql-primary.servers.linodedb.net:3306/exchanges_db"
                 "?ssl_cert=/scraper/scraper_root/trading-data-ca-certificate.crt"
                 )
         database_url = os.getenv('DATABASE_URL', default_url)
 
-        # self.engine = create_engine(url=os.getenv(
-        #     'DATABASE_PATH', 'sqlite:///data/exchanges_db.sqlite'), echo=False)
-        # _DECL_BASE.metadata.create_all(self.engine)
-
-        self.engine = create_engine(database_url, echo=False, connect_args=ssl_args)
+        self.engine = create_engine(database_url, echo=False)
         _DECL_BASE.metadata.create_all(self.engine)
 
         self.lockable_session = LockableSession(self.engine)
@@ -67,9 +57,9 @@ class Repository:
                                 end_date = date.today()
                                 while day <= end_date:
                                     rs = con.execute(
-                                        f'SELECT sum("INCOME"."income") AS "sum" FROM "INCOME" '
-                                        f'WHERE "INCOME"."time" >= date(\'{day.strftime("%Y-%m-%d")}\') '
-                                        f'AND "Income"."account" = \'{account}\'')
+                                        f'SELECT sum(INCOME.income) AS "sum" FROM INCOME '
+                                        f'WHERE INCOME.time >= date(\'{day.strftime("%Y-%m-%d")}\') '
+                                        f'AND Income.account = \'{account}\'')
                                     for row in rs:
                                         if row[0] is None:
                                             income = 0
@@ -177,7 +167,8 @@ class Repository:
         with self.lockable_session as session:
             logger.debug(f'Getting all trades for asset {asset}')
             result = session.query(TradeEntity).filter(TradeEntity.symbol.like(f'{asset}%')) \
-                .filter(TradeEntity.account == account).all()
+                .filter(
+                TradeEntity.account == account).all()
             return result
 
     def get_newest_trade(self, symbol: str, account: str) -> TradeEntity:
@@ -274,71 +265,4 @@ class Repository:
             logger.debug('Getting traded symbol')
             query = session.query(TradedSymbolEntity).filter(TradedSymbolEntity.symbol == symbol)\
                 .filter(TradedSymbolEntity.account == account)
-            return session.query(query.exists()).scalar()
-
-    def get_all_traded_symbols(self, account: str) -> List[str]:
-        with self.lockable_session as session:
-            logger.debug('Getting all traded symbol')
-            return [e.symbol for e in session.query(TradedSymbolEntity).filter(TradedSymbolEntity.account == account).all()]
-
-    def get_traded_symbol(self, symbol: str, account: str) -> TradedSymbolEntity:
-        with self.lockable_session as session:
-            logger.debug(f'Getting traded symbol for {symbol}')
-            return session.query(TradedSymbolEntity).filter(TradedSymbolEntity.symbol == symbol)\
-                .filter(TradedSymbolEntity.account == account).first()
-
-    def process_traded_symbol(self, symbol: str, account: str):
-        with self.lockable_session as session:
-            logger.debug('Processing traded symbol')
-            traded_symbol_entity = TradedSymbolEntity()
-            traded_symbol_entity.symbol = symbol
-            traded_symbol_entity.account = account
-            session.add(traded_symbol_entity)
-            session.commit()
-
-    def update_trades_last_downloaded(self, symbol: str, account: str):
-        with self.lockable_session as session:
-            logger.debug('Updating trades last downloaded')
-            traded_symbol = session.query(TradedSymbolEntity).filter(TradedSymbolEntity.symbol == symbol)\
-                .filter(TradedSymbolEntity.account == account).first()
-            traded_symbol.last_trades_downloaded = datetime.now()
-            session.commit()
-
-    def get_symbol_checks(self, account: str) -> List[SymbolCheckEntity]:
-        with self.lockable_session as session:
-            logger.debug('Getting all symbol checks')
-            return [e.symbol for e in session.query(SymbolCheckEntity).filter(SymbolCheckEntity.account == account).all()]
-
-    def process_symbol_checked(self, symbol: str, account: str):
-        with self.lockable_session as session:
-            existing_symbol_check = session.query(SymbolCheckEntity).filter(SymbolCheckEntity.symbol == symbol)\
-                .filter(SymbolCheckEntity.account == account).first()
-            if existing_symbol_check is None:
-                existing_symbol_check = SymbolCheckEntity()
-                existing_symbol_check.symbol = symbol
-                existing_symbol_check.account = account
-                session.add(existing_symbol_check)
-            existing_symbol_check.last_checked_datetime = datetime.now()
-            session.commit()
-
-    def get_next_traded_symbol(self, account: str) -> TradedSymbolEntity:
-        with self.lockable_session as session:
-            # first check any of the open positions
-            open_positions = self.open_positions(account=account)
-            for open_position in open_positions:
-                position_symbol = open_position.symbol
-                traded_symbol = self.get_traded_symbol(position_symbol, account=account)
-                if traded_symbol.last_trades_downloaded < datetime.utcnow() + timedelta(minutes=5):
-                    # open positions are synced at least every 5 minutes
-                    return session.query(TradedSymbolEntity).filter(TradedSymbolEntity.symbol == position_symbol)\
-                        .filter(TradedSymbolEntity.account == account).first().symbol
-            next_symbol = session.query(TradedSymbolEntity).filter(TradedSymbolEntity.account == account).order_by(
-                nulls_first(TradedSymbolEntity.last_trades_downloaded.asc())).first()
-            if next_symbol is None:
-                return None
-            else:
-                return next_symbol.symbol
-
-    def open_positions(self, account: str) -> List[PositionEntity]:
-        with self.lockable_session as session:
-            return session.query(PositionEntity).filter(PositionEntity.account == account).all()
+            return session.query(query.exists())
